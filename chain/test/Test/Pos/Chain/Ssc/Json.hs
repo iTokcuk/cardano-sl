@@ -2,9 +2,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
 
-module Test.Pos.Chain.Ssc.Json
-       ( tests
-       ) where
+module Test.Pos.Chain.Ssc.Json where
+      -- ( tests
+      -- ) where
 import           Universum
 
 import qualified Cardano.Crypto.Wallet as CC
@@ -24,9 +24,9 @@ golden_AttackTarget_NetworkAddressTarget :: Property
 golden_AttackTarget_NetworkAddressTarget =
     goldenTestJSON exampleAttackTarget_NetworkAddressTarget
         "test/golden/AttackTarget_NetworkAddressTarget"
-  where
-    exampleAttackTarget_NetworkAddressTarget =
-        NetworkAddressTarget ("ggv", 32313)
+
+exampleAttackTarget_NetworkAddressTarget :: AttackTarget
+exampleAttackTarget_NetworkAddressTarget = NetworkAddressTarget ("ggv", 32313)
 
 
 golden_AttackTarget_PubKeyAddressTarget :: Property

@@ -2,9 +2,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
 
-module Test.Pos.Chain.Txp.Json
-       ( tests
-       ) where
+module Test.Pos.Chain.Txp.Json where
+     --  ( tests
+     --  ) where
 import           Universum
 
 import qualified Data.Set as S
