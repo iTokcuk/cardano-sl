@@ -37,6 +37,17 @@ embedGoldenTest :: FilePath -> ExpQ
 embedGoldenTest path =
     makeRelativeToTestDir ("golden/" <> path) >>= embedStringFile
 
+-- | Test if prettified JSON and unformatted JSON are equivalent.
+goldenFileEquiv :: (Eq a)
+                => Either String a -> Either String a -> Either String Bool
+goldenFileEquiv prettified unformatted = do
+        case prettified of
+            Left err -> Left $ "could not decode: " <> show err
+            Right x ->  case unformatted of
+                            Left err -> Left $ "could not decode: " <> show err
+                            Right x' -> Right $ x' == x
+
+
 goldenTestJSON :: (Eq a, FromJSON a, HasCallStack, Show a, ToJSON a)
                => a -> FilePath -> Property
 goldenTestJSON x path = withFrozenCallStack $ do

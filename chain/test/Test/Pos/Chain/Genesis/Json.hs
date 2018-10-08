@@ -6,8 +6,12 @@ module Test.Pos.Chain.Genesis.Json
 
 import           Universum
 
-import           Hedgehog (Property)
+import           Data.Aeson (eitherDecode)
+import qualified Data.ByteString.Lazy as LB
+import           Hedgehog (Property, assert, withTests)
 import qualified Hedgehog as H
+import           Hedgehog.Internal.Property (failWith)
+import           Pos.Chain.Genesis (StaticConfig)
 
 import           Test.Pos.Chain.Genesis.Example (exampleGenesisData0,
                      exampleGenesisData1, exampleGenesisData2,
@@ -21,7 +25,7 @@ import           Test.Pos.Chain.Genesis.Gen (genGenesisAvvmBalances,
                      genGenesisInitializer, genGenesisProtocolConstants,
                      genStaticConfig)
 import           Test.Pos.Core.ExampleHelpers (feedPM)
-import           Test.Pos.Util.Golden (discoverGolden, eachOf,
+import           Test.Pos.Util.Golden (discoverGolden, eachOf, goldenFileEquiv,
                      goldenTestCanonicalJSONDec, goldenTestJSON,
                      goldenTestJSONDec)
 import           Test.Pos.Util.Tripping (discoverRoundTrip, roundTripsAesonShow,
@@ -62,6 +66,46 @@ golden_StaticConfig_GCSrc =
 roundTripStaticConfig :: Property
 roundTripStaticConfig =
     eachOf 100 (feedPM genStaticConfig) roundTripsAesonShow
+
+-- Pretty print format equivalence tests. The test reads and decodes the
+-- non-prettified JSON (from oldJson dir) and the prettified JSON
+-- (from json dir). If the decoding is successful the two values are compared.
+
+golden_prettyEquivalence_StaticConfig_GCSrc :: Property
+golden_prettyEquivalence_StaticConfig_GCSrc = withFrozenCallStack $ do
+    withTests 1 . H.property $ do
+        bs <- liftIO $ LB.readFile "test/golden/json/StaticConfig_GCSrc"
+        bs2 <- liftIO $ LB.readFile "test/golden/oldJson/StaticConfig_GCSrc"
+        case goldenFileEquiv (eitherDecode bs :: Either String StaticConfig) (eitherDecode bs2 :: Either String StaticConfig) of
+            Left err    -> failWith Nothing $ "could not decode: " <> show err
+            Right bool' -> assert bool'
+
+golden_prettyEquivalence_StaticConfig_GCSrc0 :: Property
+golden_prettyEquivalence_StaticConfig_GCSrc0 = withFrozenCallStack $ do
+    withTests 1 . H.property $ do
+        bs <- liftIO $ LB.readFile "test/golden/json/StaticConfig_GCSpec0_Legacy_HasNetworkMagic"
+        bs2 <- liftIO $ LB.readFile "test/golden/oldJson/StaticConfig_GCSpec0_Legacy_HasNetworkMagic"
+        case goldenFileEquiv (eitherDecode bs :: Either String StaticConfig) (eitherDecode bs2 :: Either String StaticConfig) of
+            Left err    -> failWith Nothing $ "could not decode: " <> show err
+            Right bool' -> assert bool'
+
+golden_prettyEquivalence_StaticConfig_GCSrc1 :: Property
+golden_prettyEquivalence_StaticConfig_GCSrc1 = withFrozenCallStack $ do
+    withTests 1 . H.property $ do
+        bs <- liftIO $ LB.readFile "test/golden/json/StaticConfig_GCSpec1_Legacy_HasNetworkMagic"
+        bs2 <- liftIO $ LB.readFile "test/golden/oldJson/StaticConfig_GCSpec1_Legacy_HasNetworkMagic"
+        case goldenFileEquiv (eitherDecode bs :: Either String StaticConfig) (eitherDecode bs2 :: Either String StaticConfig) of
+            Left err    -> failWith Nothing $ "could not decode: " <> show err
+            Right bool' -> assert bool'
+
+golden_prettyEquivalence_StaticConfig_GCSrc2 :: Property
+golden_prettyEquivalence_StaticConfig_GCSrc2 = withFrozenCallStack $ do
+    withTests 1 . H.property $ do
+        bs <- liftIO $ LB.readFile "test/golden/json/StaticConfig_GCSpec2_Legacy_HasNetworkMagic"
+        bs2 <- liftIO $ LB.readFile "test/golden/oldJson/StaticConfig_GCSpec2_Legacy_HasNetworkMagic"
+        case goldenFileEquiv (eitherDecode bs :: Either String StaticConfig) (eitherDecode bs2 :: Either String StaticConfig) of
+            Left err    -> failWith Nothing $ "could not decode: " <> show err
+            Right bool' -> assert bool'
 
 --------------------------------------------------------------------------------
 -- GenesisData (Canonical JSON)
