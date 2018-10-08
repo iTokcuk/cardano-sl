@@ -38,6 +38,7 @@ library
                        Test.Pos.Chain.Update.Gen
 
   build-depends:       aeson-pretty
+                     , aeson
                      , base
                      , base16-bytestring
                      , bytestring
