@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Pos.Crypto.Configuration
        ( ProtocolMagic (..)
        , ProtocolMagicId (..)
@@ -11,6 +13,7 @@ import           Control.Monad.Except (MonadError)
 import           Data.Aeson ((.:), (.=))
 import qualified Data.Aeson as A
 import           Data.Aeson.Types (typeMismatch)
+import qualified Data.HashMap.Strict as HM
 import           Data.List (lookup)
 import           Data.SafeCopy (base, deriveSafeCopySimple)
 import           Text.JSON.Canonical (FromJSON (..), JSValue (..), ToJSON (..),
@@ -102,10 +105,19 @@ instance A.FromJSON ProtocolMagic where
     parseJSON v@(A.Number _) = ProtocolMagic
         <$> (ProtocolMagicId <$> A.parseJSON v)
         <*> pure RequiresMagic
-    parseJSON (A.Object o) = ProtocolMagic
-        <$> (ProtocolMagicId <$> o .: "pm")
-        <*> o .: "requiresNetworkMagic"
-    parseJSON invalid = typeMismatch "Coord" invalid
+    parseJSON (A.Object o) =
+        case HM.lookup "requiresNetworkMagic" o of
+            -- legacy codebase JSON encoding
+            Just (A.String "NMMustBeJust")
+                -> ProtocolMagic <$> (ProtocolMagicId <$> o .: "pm")
+                                 <*> pure RequiresMagic
+            Just (A.String "NMMustBeNothing")
+                -> ProtocolMagic <$> (ProtocolMagicId <$> o .: "pm")
+                                 <*> pure RequiresNoMagic
+            -- current codebase JSON encoding
+            _   -> ProtocolMagic <$> (ProtocolMagicId <$> o .: "pm")
+                                 <*> o .: "requiresNetworkMagic"
+    parseJSON invalid = typeMismatch "ProtocolMagic" invalid
 
 -- Canonical JSON instances
 instance Monad m => ToJSON m ProtocolMagic where
