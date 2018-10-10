@@ -11,7 +11,7 @@ import qualified Data.ByteString.Lazy as LB
 import           Hedgehog (Property, assert, withTests)
 import qualified Hedgehog as H
 import           Hedgehog.Internal.Property (failWith)
-import           Pos.Chain.Genesis (StaticConfig)
+import           Pos.Chain.Genesis (GenesisProtocolConstants, StaticConfig)
 
 import           Test.Pos.Chain.Genesis.Example (exampleGenesisData0,
                      exampleGenesisData1, exampleGenesisData2,
@@ -180,6 +180,50 @@ roundTripGenesisProtocolConstants :: Property
 roundTripGenesisProtocolConstants =
     eachOf 1000 (feedPM genGenesisProtocolConstants) roundTripsAesonShow
 
+golden_prettyEquivalence_GenesisProtocolConstants0 :: Property
+golden_prettyEquivalence_GenesisProtocolConstants0 = withFrozenCallStack $ do
+    withTests 1 . H.property $ do
+        pJson <- liftIO $ LB.readFile pFile
+        oJson <- liftIO $ LB.readFile oFile
+        let equivTest = goldenFileEquiv
+                (eitherDecode pJson :: Either String GenesisProtocolConstants)
+                (eitherDecode oJson :: Either String GenesisProtocolConstants)
+        case equivTest of
+            Left err    -> failWith Nothing $ "could not decode: " <> show err
+            Right bool' -> assert bool'
+  where
+    pFile = "test/golden/json/GenesisProtocolConstants0_Legacy_HasNetworkMagic"
+    oFile = "test/golden/oldJson/GenesisProtocolConstants0_Legacy_HasNetworkMagic"
+
+golden_prettyEquivalence_GenesisProtocolConstants1 :: Property
+golden_prettyEquivalence_GenesisProtocolConstants1 = withFrozenCallStack $ do
+    withTests 1 . H.property $ do
+        pJson <- liftIO $ LB.readFile pFile
+        oJson <- liftIO $ LB.readFile oFile
+        let equivTest = goldenFileEquiv
+                (eitherDecode pJson :: Either String GenesisProtocolConstants)
+                (eitherDecode oJson :: Either String GenesisProtocolConstants)
+        case equivTest of
+            Left err    -> failWith Nothing $ "could not decode: " <> show err
+            Right bool' -> assert bool'
+  where
+    pFile = "test/golden/json/GenesisProtocolConstants1_Legacy_HasNetworkMagic"
+    oFile = "test/golden/oldJson/GenesisProtocolConstants1_Legacy_HasNetworkMagic"
+
+golden_prettyEquivalence_GenesisProtocolConstants2 :: Property
+golden_prettyEquivalence_GenesisProtocolConstants2 = withFrozenCallStack $ do
+    withTests 1 . H.property $ do
+        pJson <- liftIO $ LB.readFile pFile
+        oJson <- liftIO $ LB.readFile oFile
+        let equivTest = goldenFileEquiv
+                (eitherDecode pJson :: Either String GenesisProtocolConstants)
+                (eitherDecode oJson :: Either String GenesisProtocolConstants)
+        case equivTest of
+            Left err    -> failWith Nothing $ "could not decode: " <> show err
+            Right bool' -> assert bool'
+  where
+    pFile = "test/golden/json/GenesisProtocolConstants2_Legacy_HasNetworkMagic"
+    oFile = "test/golden/oldJson/GenesisProtocolConstants2_Legacy_HasNetworkMagic"
 --------------------------------------------------------------------------------
 -- GenesisInitializer
 --------------------------------------------------------------------------------
