@@ -7,6 +7,7 @@
 {-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE StandaloneDeriving  #-}
 
 -- | This module implements functionality of NTP client.
 
@@ -71,6 +72,16 @@ data NtpClientSettings = NtpClientSettings
       -- some servers failed to respond in time, but never an empty list
     }
 
+-- Written for JSON golden decode only tests. Only
+-- the fields ntpServers, ntpResponseTimeout and ntpPollDelay
+-- end up in the JSON encoding of `Configuration`. Also,
+-- equality testing of a function does not make sense.
+
+instance Eq NtpClientSettings where
+    (==) (NtpClientSettings servs respT pDel _) (NtpClientSettings servs' respT' pDel' _) =
+        servs == servs' && respT == respT' && pDel == pDel'
+
+
 data NtpClient = NtpClient
     { ncSockets  :: TVar Sockets
       -- ^ Ntp client sockets: ipv4 / ipv6 / both.
@@ -83,7 +94,7 @@ data NtpClient = NtpClient
       -- once all responses arrived.
     , ncSettings :: NtpClientSettings
       -- ^ Ntp client configuration.
-    }
+    } deriving Eq
 
 data NtpConfiguration = NtpConfiguration
     {
@@ -94,7 +105,7 @@ data NtpConfiguration = NtpConfiguration
     , ntpcPollDelay       :: !Integer
       -- ^ how long to wait between sending requests to the ntp servers (in
       -- microseconds)
-    } deriving (Show, Generic)
+    } deriving (Eq, Generic, Show)
 
 instance FromJSON NtpConfiguration where
     parseJSON = genericParseJSON defaultOptions
