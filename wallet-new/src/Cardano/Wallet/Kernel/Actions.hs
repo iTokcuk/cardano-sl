@@ -19,7 +19,8 @@ import qualified Control.Concurrent.Async as Async
 import qualified Control.Concurrent.STM as STM
 import qualified Control.Exception.Safe as Ex
 import           Control.Lens (makeLenses, (%=), (+=), (-=), (.=))
-import           Control.Monad.IO.Unlift (MonadUnliftIO, withUnliftIO, UnliftIO(unliftIO))
+import           Control.Monad.IO.Unlift (MonadUnliftIO, UnliftIO(unliftIO),
+                     withUnliftIO)
 import           Control.Monad.Writer.Strict (Writer, runWriter, tell)
 import           Formatting (bprint, build, shown, (%))
 import qualified Formatting.Buildable
@@ -305,8 +306,8 @@ readTMQueue (UnsafeTMQueue to tq) = do
   mItem <- STM.tryReadTQueue tq
   case (open, mItem) of
     -- Not empty: doesn't matter whether it's closed.
-    (_, Just a) -> pure (Just a)
+    (_, Just a)               -> pure (Just a)
     -- Open and empty: wait
-    (TMQueueOpen, Nothing) -> STM.retry
+    (TMQueueOpen, Nothing)    -> STM.retry
     -- Closed and empty: exhausted
     (TMQueueNotOpen, Nothing) -> pure Nothing
